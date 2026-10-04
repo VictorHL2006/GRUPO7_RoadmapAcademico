@@ -5,5 +5,5 @@ if [ -z "$1" ]; then
 fi
 
 echo "Firmando el documento $1..."
-openssl dgst -sha256 -sign key/private.pem -out "$1.sig" "$1"
+openssl dgst -sha256 -sign keys/private.pem -out "$1.sig" "$1"
 echo "Firma generada exitosamente: $1.sig"

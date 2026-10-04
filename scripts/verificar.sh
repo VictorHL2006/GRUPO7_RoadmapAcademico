@@ -4,4 +4,4 @@ if [ -z "$1" ]; then
 fi
 
 echo "Verificando la firma de $1..."
-openssl dgst -sha256 -verify key/public.pem -signature "$1.sig" "$1"
+openssl dgst -sha256 -verify keys/public_key.pem -signature "$1.sig" "$1"
