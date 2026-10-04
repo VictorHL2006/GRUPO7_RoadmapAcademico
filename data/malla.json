@@ -1,0 +1,19 @@
+{
+  "cursos": [
+    {"codigo": "MAT101", "nombre": "Matemática I", "creditos": 4, "prerrequisitos": []},
+    {"codigo": "PRG101", "nombre": "Programación I", "creditos": 4, "prerrequisitos": []},
+    {"codigo": "MAT102", "nombre": "Matemática II", "creditos": 4, "prerrequisitos": ["MAT101"]},
+    {"codigo": "PRG102", "nombre": "Programación II", "creditos": 4, "prerrequisitos": ["PRG101"]},
+    {"codigo": "EDD201", "nombre": "Estructuras de Datos", "creditos": 4, "prerrequisitos": ["PRG102"]},
+    {"codigo": "BDD202", "nombre": "Bases de Datos", "creditos": 4, "prerrequisitos": ["PRG102"]},
+    {"codigo": "RED301", "nombre": "Redes de Computadoras", "creditos": 4, "prerrequisitos": ["EDD201"]},
+    {"codigo": "SEG302", "nombre": "Seguridad Informática", "creditos": 4, "prerrequisitos": ["RED301"]},
+    {"codigo": "ING401", "nombre": "Ingeniería de Software", "creditos": 4, "prerrequisitos": ["BDD201"]},
+    {"codigo": "DAT402", "nombre": "Ciencia de Datos", "creditos": 4, "prerrequisitos": ["MAT102", "BDD202"]}
+  ],
+  "especialidades": [
+    {"nombre": "Ingeniería de Software", "areas": ["desarrollo", "calidad", "web"]},
+    {"nombre": "Redes y Seguridad", "areas": ["seguridad", "redes", "criptografía"]},
+    {"nombre": "Ciencia de Datos", "areas": ["datos", "estadística", "ia"]}
+  ]
+}

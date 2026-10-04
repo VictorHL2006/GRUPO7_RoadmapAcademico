@@ -1,0 +1,17 @@
+[
+  {
+    "codigo": "E001",
+    "aprobados": ["MAT101", "PRG101"],
+    "intereses": ["seguridad", "redes"]
+  },
+  {
+    "codigo": "E002",
+    "aprobados": ["MAT101", "PRG101", "PRG102"],
+    "intereses": ["datos", "ia"]
+  },
+  {
+    "codigo": "E003",
+    "aprobados": ["MAT101", "PRG101", "PRG102", "EDD201"],
+    "intereses": ["desarrollo", "web"]
+  }
+]
