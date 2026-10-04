@@ -9,6 +9,10 @@ app = FastAPI(title="Roadmap Académico API")
 RUTA_PUBLICA = os.getenv("PUBLIC_KEY_PATH", "keys/public_key.pem")
 
 
+@app.get("/")
+def inicio():
+    return {"mensaje": "Roadmap Académico API"}
+
 @app.get("/health")
 def health():
     return {"estado": "ok"}
