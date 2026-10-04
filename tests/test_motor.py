@@ -13,3 +13,13 @@ def test_carga_no_supera_maximo():
 def test_especialidad():
     esp, _ = sugerir_especialidad(["seguridad", "redes"], MALLA["especialidades"])
     assert esp == "Redes y Seguridad"
+
+def test_prerrequisitos_existen_en_malla():
+    codigos = {curso["codigo"] for curso in MALLA["cursos"]}
+    faltantes = {
+        prerequisito
+        for curso in MALLA["cursos"]
+        for prerequisito in curso["prerrequisitos"]
+        if prerequisito not in codigos
+    }
+    assert faltantes == set()
