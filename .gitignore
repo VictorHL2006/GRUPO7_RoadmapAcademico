@@ -1,0 +1,21 @@
+# Llaves y certificados
+*.pem
+*.key
+*.sig
+keys/*
+!keys/.gitkeep
+
+# Variables de entorno
+.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+documento.txt
+
+# Editor / sistema
+.vscode/
+.idea/
+.DS_Store
