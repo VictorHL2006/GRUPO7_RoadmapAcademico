@@ -44,6 +44,7 @@ python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env            # editar .env con valores locales
+bash scripts/generar_llaves.sh  # crea keys/private.pem y keys/public_key.pem
 ```
 
 ### 2. Ejecutar el backend (puerto 8000)
@@ -61,8 +62,17 @@ npm run dev
 ```
 Abrir http://localhost:5173
 
-Los comandos de base de datos y de generación de llaves se completarán cuando los
-demás integrantes suban sus scripts.
+Si el backend no se ejecuta en `http://localhost:8000`, crear un archivo
+`frontend/.env` con:
+```bash
+VITE_API_URL=http://localhost:8000
+```
+
+### 4. Pruebas
+Desde la raíz del repositorio:
+```bash
+pytest -q
+```
 
 ## Puertos
 | Puerto | Uso | Estado |
@@ -91,16 +101,16 @@ tests/            pruebas automáticas
 ## Estado del proyecto
 ### Hecho
 - Estructura base del repositorio, .gitignore, .env.example y dependencias.
-- Backend base con el endpoint de verificación (`/verificar`) y de estado (`/health`).
-- Frontend base (React + Vite).
+- Backend base con los endpoints `/verificar` y `/health`.
+- Motor de recomendación con pruebas unitarias.
+- Scripts de generación de llaves, firma, verificación y certificado TLS.
+- Frontend de verificación integrado con el backend.
 
 ### En curso
-- Motor de recomendación, base de datos, scripts criptográficos e integración
-  del frontend con el backend.
+- Generación de PDF con QR y portal de verificación completo.
 
 ### Pendiente
-- Generación de PDF con QR, portal de verificación completo y cifrado
-  AES-256-GCM de columnas sensibles.
+- Cifrado AES-256-GCM de columnas sensibles.
 
 ## Seguridad (qué no se sube al repositorio)
 - Llaves y certificados (`*.pem`, `*.key`, `*.sig`).
