@@ -2,14 +2,32 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [archivo, setArchivo] = useState(null)
+  const [documento, setDocumento] = useState(null)
+  const [firma, setFirma] = useState(null)
   const [resultado, setResultado] = useState(null)
   const [cargando, setCargando] = useState(false)
   const [mensaje, setMensaje] = useState('')
 
+  const seleccionarDocumento = (evento) => {
+    setDocumento(evento.target.files[0] || null)
+    setResultado(null)
+    setMensaje('')
+  }
+
+  const seleccionarFirma = (evento) => {
+    setFirma(evento.target.files[0] || null)
+    setResultado(null)
+    setMensaje('')
+  }
+
   const verificarDocumento = async () => {
-    if (!archivo) {
-      setMensaje('Seleccione un archivo para verificar.')
+    if (!documento) {
+      setMensaje('Seleccione el documento que desea verificar.')
+      return
+    }
+
+    if (!firma) {
+      setMensaje('Seleccione el archivo de firma digital (.sig).')
       return
     }
 
@@ -18,23 +36,33 @@ function App() {
     setResultado(null)
 
     const formulario = new FormData()
-    formulario.append('archivo', archivo)
+
+    formulario.append('documento', documento)
+    formulario.append('firma', firma)
 
     try {
-      const respuesta = await fetch('http://localhost:8000/verificar', {
-        method: 'POST',
-        body: formulario
-      })
+      const respuesta = await fetch(
+        'http://localhost:8000/verificar',
+        {
+          method: 'POST',
+          body: formulario
+        }
+      )
 
       const datos = await respuesta.json()
 
       if (!respuesta.ok) {
-        throw new Error(datos.detail || 'Error al verificar el documento.')
+        throw new Error(
+          datos.detail || 'Error al verificar el documento.'
+        )
       }
 
       setResultado(datos)
+
     } catch (error) {
-      setMensaje(error.message)
+      setMensaje(
+        error.message || 'No se pudo conectar con el servidor.'
+      )
     } finally {
       setCargando(false)
     }
@@ -42,35 +70,68 @@ function App() {
 
   return (
     <div className="app">
+
       <header className="header">
         <h1>Roadmap Académico</h1>
+
         <p>
-          Verificación de autenticidad e integridad del documento académico
+          Sistema de verificación de autenticidad e integridad
+          del documento académico.
         </p>
       </header>
 
       <main className="contenido">
+
         <section className="card">
+
           <h2>Verificar Roadmap Académico</h2>
 
           <p>
-            Seleccione el documento generado para comprobar su integridad
-            mediante el servicio de verificación.
+            Seleccione el documento y su firma digital para
+            comprobar su autenticidad e integridad.
           </p>
+
+          <label>
+            Documento:
+          </label>
 
           <input
             type="file"
-            onChange={(e) => setArchivo(e.target.files[0])}
+            onChange={seleccionarDocumento}
           />
 
-          {archivo && (
+          {documento && (
             <p>
-              Archivo seleccionado: <strong>{archivo.name}</strong>
+              Documento seleccionado:{' '}
+              <strong>{documento.name}</strong>
             </p>
           )}
 
-          <button onClick={verificarDocumento} disabled={cargando}>
-            {cargando ? 'Verificando...' : 'Verificar documento'}
+          <br />
+
+          <label>
+            Firma digital:
+          </label>
+
+          <input
+            type="file"
+            onChange={seleccionarFirma}
+          />
+
+          {firma && (
+            <p>
+              Firma seleccionada:{' '}
+              <strong>{firma.name}</strong>
+            </p>
+          )}
+
+          <button
+            onClick={verificarDocumento}
+            disabled={cargando}
+          >
+            {cargando
+              ? 'Verificando...'
+              : 'Verificar documento'}
           </button>
 
           {mensaje && (
@@ -81,19 +142,27 @@ function App() {
 
           {resultado && (
             <div className="resultado">
+
               <h3>Resultado de la verificación</h3>
 
-              <pre>
-                {JSON.stringify(resultado, null, 2)}
-              </pre>
+              <p>
+                Resultado:{' '}
+                <strong>{resultado.resultado}</strong>
+              </p>
+
             </div>
           )}
+
         </section>
+
       </main>
 
       <footer className="footer">
-        <p>Proyecto Roadmap Académico - UCSM</p>
+        <p>
+          Proyecto Roadmap Académico - UCSM
+        </p>
       </footer>
+
     </div>
   )
 }
