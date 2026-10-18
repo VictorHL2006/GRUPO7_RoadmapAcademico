@@ -1,0 +1,11 @@
+digraph G { rankdir=LR; fontname="Helvetica"; node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12, margin="0.15,0.1"]; edge [color="#555555"];
+ subgraph cluster_l { label="Leyenda"; fontsize=11; style=dashed; color="#999999";
+   l1 [label="Pública", fillcolor="#cfe8ff"]; l2 [label="Estudiante", fillcolor="#d4f0d0"]; l3 [label="Tutor", fillcolor="#ffe3b3"]; l1->l2->l3 [style=invis]; }
+ V2 [label="V2 Registro", fillcolor="#cfe8ff"]; V1 [label="V1 Inicio de sesión", fillcolor="#cfe8ff"];
+ V3 [label="V3 Panel principal", fillcolor="#d4f0d0"]; V4 [label="V4 Perfil e historial", fillcolor="#d4f0d0"];
+ V5 [label="V5 Intereses", fillcolor="#d4f0d0"]; V6 [label="V6 Generar Roadmap", fillcolor="#d4f0d0"];
+ V7 [label="V7 Mis Roadmaps", fillcolor="#d4f0d0"]; V8 [label="V8 Visor con firma y QR", fillcolor="#d4f0d0"];
+ V9 [label="V9 Portal de verificación", fillcolor="#cfe8ff"]; V10 [label="V10 Documento auténtico", fillcolor="#cfe8ff"];
+ V11 [label="V11 Documento alterado", fillcolor="#cfe8ff"]; V12 [label="V12 Panel de tutor", fillcolor="#ffe3b3"];
+ V2->V1; V1->V3 [label=" estudiante", fontsize=10]; V1->V12 [label=" tutor", fontsize=10];
+ V3->V4; V3->V5; V3->V6; V3->V7; V5->V6 [style=dashed]; V6->V8; V7->V8; V8->V9; V9->V10; V9->V11; V12->V9; }
