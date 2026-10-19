@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mis Roadmaps - Roadmap Académico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/estilos.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div id="menu"></div>
+  <div class="container py-4">
+    <div id="aviso" class="alert alert-danger d-none"></div>
+    <div class="card shadow-sm"><div class="card-body">
+      <h5>Mis Roadmaps emitidos</h5>
+      <div class="row g-2 mb-3">
+        <div class="col-md-4"><select id="fEsp" class="form-select" onchange="pintar()"><option value="">Todas las especialidades</option></select></div>
+        <div class="col-md-4"><input id="fDesde" type="date" class="form-control" onchange="pintar()" title="Desde"></div>
+        <div class="col-md-4"><input id="fHasta" type="date" class="form-control" onchange="pintar()" title="Hasta"></div>
+      </div>
+      <div class="table-responsive"><table class="table table-striped align-middle">
+        <thead><tr><th>Fecha</th><th>Especialidad</th><th>Créditos</th><th>Acciones</th></tr></thead>
+        <tbody id="tabla"></tbody>
+      </table></div>
+    </div></div>
+  </div>
+  <script src="js/api.js"></script><script src="js/menu.js"></script>
+  <script>
+    cargarMenu("roadmaps.html");
+    let lista = [];
+    async function cargar() {
+      try {
+        lista = await api("/roadmaps");
+        [...new Set(lista.map(r => r.especialidad))].forEach(e => fEsp.add(new Option(e, e)));
+        pintar();
+      } catch (e) { aviso.textContent = e.message; aviso.classList.remove("d-none"); }
+    }
+    function pintar() {
+      const f = lista.filter(r => (!fEsp.value || r.especialidad === fEsp.value) &&
+        (!fDesde.value || r.fecha >= fDesde.value) && (!fHasta.value || r.fecha <= fHasta.value));
+      tabla.innerHTML = f.map(r => "<tr><td>" + r.fecha + "</td><td>" + r.especialidad + "</td><td>" + r.creditos +
+        '</td><td><a class="btn btn-outline-primary btn-sm me-1" href="visor.html?id=' + r.id + '">Ver</a>' +
+        '<button class="btn btn-primary btn-sm" onclick="descargar(' + r.id + ')">Descargar</button></td></tr>').join("") ||
+        '<tr><td colspan="4" class="text-center text-muted">No hay roadmaps con esos filtros</td></tr>';
+    }
+    async function descargar(id) {
+      const r = await fetch(API + "/roadmaps/" + id + "/pdf", { headers: { Authorization: "Bearer " + token() } });
+      if (!r.ok) { alert("No se pudo descargar el PDF"); return; }
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(await r.blob()); a.download = "roadmap_" + id + ".pdf"; a.click();
+    }
+    cargar();
+  </script>
+</body>
+</html>
