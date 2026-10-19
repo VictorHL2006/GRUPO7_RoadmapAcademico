@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generar Roadmap Académico</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div id="menu-container"></div>
+
+    <div class="container">
+        <h2>Generación de Plan y Recomendación</h2>
+        <p class="text-muted">Calcula tu carga académica y genera tu ruta personalizada de estudios.</p>
+        
+        <div class="card">
+            <div class="mb-3">
+                <label for="creditos" class="form-label" style="font-weight: 600; display: block; margin-bottom: 8px;">Máximo de Créditos Permitidos:</label>
+                <input type="number" id="creditos" class="form-control" value="22" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <button class="btn btn-success" onclick="generar()">Generar Roadmap</button>
+        </div>
+
+        <div id="loading" class="text-center d-none" style="margin-top: 20px;">
+            <p>Generando y firmando documento...</p>
+        </div>
+
+        <div id="resultado" class="card d-none">
+            <h4>Especialidad Sugerida: <span id="especialidad" style="color: #3498db;"></span></h4>
+            <p style="margin-top: 10px;"><strong>Total de Créditos Asignados:</strong> <span id="totalCreditos"></span></p>
+            
+            <h5 style="margin-top: 15px;">Cursos Priorizados:</h5>
+            <ul id="listaCursos" class="list-group" style="list-style: none; padding: 0; margin-bottom: 20px;"></ul>
+
+            <div style="display: flex; gap: 10px;">
+                <a id="verDoc" class="btn btn-primary" target="_blank" style="text-decoration: none;">Ver documento (V8)</a>
+                <a id="descargarPdf" class="btn btn-success" style="text-decoration: none; background-color: #e74c3c;">Descargar PDF</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function api(url, options = {}) {
+            const res = await fetch(url, options);
+            return await res.json();
+        }
+
+        async function generar() {
+            const creditos = document.getElementById("creditos");
+            const loading = document.getElementById("loading");
+            const resultado = document.getElementById("resultado");
+            
+            loading.classList.remove("d-none");
+            resultado.classList.add("d-none");
+
+            try {
+                const r = await api("/roadmap/generar?max_creditos=" + creditos.value, { method: "POST" });
+                
+                document.getElementById("especialidad").textContent = r.especialidad;
+                document.getElementById("totalCreditos").textContent = r.creditos;
+                
+                const listaCursos = document.getElementById("listaCursos");
+                listaCursos.innerHTML = r.cursos.map(function (c) { 
+                    return "<li class='list-group-item'>" + c + "</li>"; 
+                }).join("");
+                
+                document.getElementById("verDoc").href = "visor.html?id=" + r.id;
+                resultado.classList.remove("d-none");
+            } catch (error) {
+                alert("Error al generar el roadmap.");
+            } finally {
+                loading.classList.add("d-none");
+            }
+        }
+    </script>
+</body>
+</html>

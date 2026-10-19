@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Roadmap Académico - Intereses</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <div id="menu-container"></div>
+    
+    <div class="container">
+        <h2>Áreas de Interés Profesional</h2>
+        <p class="text-muted">Selecciona las áreas que definen tus preferencias para orientar tu especialidad.</p>
+        
+        <form id="form-intereses">
+            <div class="mb-3" id="checkbox-areas">
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="desarrollo" id="i1"><label class="form-check-label" for="i1">Desarrollo</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="calidad" id="i2"><label class="form-check-label" for="i2">Calidad</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="web" id="i3"><label class="form-check-label" for="i3">Web</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="seguridad" id="i4"><label class="form-check-label" for="i4">Seguridad</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="redes" id="i5"><label class="form-check-label" for="i5">Redes</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="criptografía" id="i6"><label class="form-check-label" for="i6">Criptografía</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="datos" id="i7"><label class="form-check-label" for="i7">Datos</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="estadística" id="i8"><label class="form-check-label" for="i8">Estadística</label></div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" value="ia" id="i9"><label class="form-check-label" for="i9">Inteligencia Artificial (IA)</label></div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary" onclick="guardarIntereses()">Guardar</button>
+                <a href="generar.html" class="btn btn-secondary">Continuar a Generar Roadmap</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        async function guardarIntereses() {
+            const seleccionados = Array.from(document.querySelectorAll('#checkbox-areas input:checked'))
+                                       .map(el => el.value);
+            
+            const response = await fetch('/intereses', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ intereses: seleccionados })
+            });
+            if (response.ok) {
+                alert("Intereses guardados correctamente.");
+            }
+        }
+    </script>
+</body>
+</html>
