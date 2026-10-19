@@ -12,3 +12,6 @@ body { display: block; place-items: initial; background: #f2f5f6; color: #212529
 .rm-numero { font-size: 2rem; font-weight: 700; color: var(--bs-primary); line-height: 1.1; }
 .rm-login { max-width: 420px; margin: 12vh auto 0; padding: 0 1rem; }
 :focus-visible { outline: 3px solid var(--rm-acento); outline-offset: 2px; }
+html { background: #f2f5f6; }
+body { min-height: 100vh; }
+.rm-login .btn, .navbar .btn { margin-top: 0; }
