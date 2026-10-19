@@ -23,9 +23,9 @@ def upsert_demo(cur, codigo, nombre, correo, clave, rol):
 
 def main():
     with get_conn() as cn, cn.cursor() as cur:
-        upsert_demo(cur, "E001", "Estudiante Demo", "e001@demo.local",
+        upsert_demo(cur, "E001", "Estudiante Demo", "e001@example.com",
                     os.getenv("DEMO_ESTUDIANTE_PASSWORD", "Demo-E001-2026"), "estudiante")
-        upsert_demo(cur, "T001", "Tutor Demo", "t001@demo.local",
+        upsert_demo(cur, "T001", "Tutor Demo", "t001@example.com",
                     os.getenv("DEMO_TUTOR_PASSWORD", "Demo-T001-2026"), "tutor")
     print("Usuarios demo listos: E001 y T001.")
     print("Credenciales de demostración únicamente; cambia DEMO_*_PASSWORD antes de exponer el entorno.")
