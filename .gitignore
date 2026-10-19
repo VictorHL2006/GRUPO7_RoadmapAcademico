@@ -18,4 +18,5 @@ documento.txt
 # Editor / sistema
 .vscode/
 .idea/
-.DS_Store
+.DS_Storekeys/private_key.pem
+.env

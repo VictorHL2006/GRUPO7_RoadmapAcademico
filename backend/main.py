@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+from backend.routers import perfil, roadmaps
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -8,6 +8,9 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Roadmap Académico API")
+
+app.include_router(perfil.router)
+app.include_router(roadmaps.router)
 
 RUTA_PUBLICA = os.getenv("PUBLIC_KEY_PATH", "keys/public_key.pem")
 
