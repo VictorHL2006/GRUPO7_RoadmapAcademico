@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react'
 import './estilos-minaya.css'
 import { token, rol } from './api'
-import App from './App.jsx'            // V9 verificación (ya existía)
+import Verificacion from './App.jsx'
 import Login from './vistas/Login.jsx'
 import Registro from './vistas/Registro.jsx'
 import Panel from './vistas/Panel.jsx'
+import Tutor from './vistas/Tutor.jsx'
 
-// Cada integrante agrega su vista aquí: '/perfil': Perfil, '/generar': Generar, etc.
 const RUTAS = {
-  '/login': Login,
-  '/registro': Registro,
-  '/panel': Panel,
-  '/verificar': App,
+  '/login': Login, '/registro': Registro, '/panel': Panel,
+  '/verificar': Verificacion, '/tutor': Tutor,
+}
+const PAGINAS_ESTATICAS = {
+  '/perfil': '/perfil.html', '/intereses': '/intereses.html',
+  '/generar': '/generar.html', '/roadmaps': '/roadmaps.html', '/visor': '/visor.html',
 }
 const PUBLICAS = ['/login', '/registro', '/verificar']
 
@@ -30,6 +32,8 @@ export default function Router() {
   const base = ruta.split('?')[0]
   if (!PUBLICAS.includes(base) && !token()) { window.location.hash = '#/login'; return null }
   if (base === '/panel' && rol() === 'tutor') { window.location.hash = '#/tutor'; return null }
+  if (base === '/tutor' && rol() !== 'tutor') { window.location.hash = token() ? '#/panel' : '#/login'; return null }
+  if (PAGINAS_ESTATICAS[base]) { window.location.replace(PAGINAS_ESTATICAS[base] + (ruta.includes('?') ? '?' + ruta.split('?')[1] : '')); return null }
   const Vista = RUTAS[base] || EnConstruccion
   return <Vista />
 }

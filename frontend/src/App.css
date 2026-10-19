@@ -136,3 +136,8 @@ button:disabled {
   }
 }
 
+.resultado-verificacion { width: min(100%, 780px); margin: 0 auto; padding: 1.5rem; border: 1px solid; border-radius: .75rem; background: #fff; }
+.resultado-verificacion.es-autentico { border-color: #86c99a; background: #f0fff4; color: #14532d; }
+.resultado-verificacion.es-alterado { border-color: #ef9a9a; background: #fff5f5; color: #7f1d1d; }
+.hash-documento { overflow-wrap: anywhere; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+
