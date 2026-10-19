@@ -77,10 +77,11 @@ pytest -q
 ## Puertos
 | Puerto | Uso | Estado |
 |--------|-----|--------|
-| 8000 | Backend (API REST) | Implementado (base) |
+| 8000 | Backend (API REST) | Implementado |
 | 5432 | PostgreSQL (solo local, no se expone) | Implementado |
 | 4433 | Prueba de canal TLS 1.3 (openssl s_server) | Solo laboratorio |
-| 5173 | Frontend (Vite) | En desarrollo |
+| 3000 | Frontend HTML estático | Disponible (python -m http.server) |
+| 5173 | Frontend (Vite) | React con enlaces a las vistas HTML V4–V8 |
 
 Los puertos 80 (HTTP) y 21 (FTP) permanecen bloqueados; en producción se usa el 443 (HTTPS).
 
@@ -88,7 +89,7 @@ Los puertos 80 (HTTP) y 21 (FTP) permanecen bloqueados; en producción se usa el
 ```
 backend/          código del servidor (API REST)
   recomendacion/  motor de recomendación
-frontend/         interfaz de usuario (React + Vite)
+frontend/         páginas HTML compartidas y shell React/Vite
 crypto/           utilidades criptográficas
 database/         esquema SQL y datos de prueba
 docs/diagramas/   diagramas del informe
@@ -101,16 +102,16 @@ tests/            pruebas automáticas
 ## Estado del proyecto
 ### Hecho
 - Estructura base del repositorio, .gitignore, .env.example y dependencias.
-- Backend base con los endpoints `/verificar` y `/health`.
+- API FastAPI con CORS, registro e inicio de sesión JWT, verificación manual y por ID, panel protegido para tutores y `/health`.
 - Motor de recomendación con pruebas unitarias.
 - Scripts de generación de llaves, firma, verificación y certificado TLS.
-- Frontend de verificación integrado con el backend.
+- Interfaz HTML para login, registro, panel, perfil, intereses, generación, roadmaps, visor, verificación y tutoría; Vite también sirve la interfaz React.
 
 ### En curso
-- Generación de PDF con QR y portal de verificación completo.
+- Cifrado AES-256-GCM de columnas sensibles.
 
 ### Pendiente
-- Cifrado AES-256-GCM de columnas sensibles.
+- Validar el flujo completo en el entorno local con PostgreSQL y navegador.
 
 ## Seguridad (qué no se sube al repositorio)
 - Llaves y certificados (`*.pem`, `*.key`, `*.sig`).
