@@ -10,7 +10,7 @@ load_dotenv()
 def firmar_pdf(pdf: bytes):
     """Devuelve (hash_hex de 64 caracteres, firma de 256 bytes)."""
     hash_hex = hashlib.sha256(pdf).hexdigest()
-    ruta = os.getenv("PRIVATE_KEY_PATH", "keys/private_key.pem")
+    ruta = os.getenv("PRIVATE_KEY_PATH", "keys/private.pem")
     with open(ruta, "rb") as f:
         clave = serialization.load_pem_private_key(f.read(), password=None)
     firma = clave.sign(pdf, padding.PKCS1v15(), hashes.SHA256())
