@@ -18,8 +18,8 @@ y firma digital RSA).
 | Categoría | Tecnología |
 |-----------|-----------|
 | Lenguaje | Python 3.11 |
-| Backend | FastAPI + Uvicorn |
-| Frontend | React + Vite |
+| Aplicación | FastAPI + Uvicorn |
+| Interfaz | HTML, CSS y JavaScript sin framework |
 | Base de datos | PostgreSQL 15 |
 | Criptografía | OpenSSL 3.x, librería cryptography |
 | Otras librerías | qrcode, reportlab, psycopg2, python-multipart, pytest |
@@ -28,7 +28,6 @@ y firma digital RSA).
 ## Requisitos
 - Servidor: mínimo 4 vCPUs y 8 GB de RAM
 - Python 3.11 o superior
-- Node.js y npm (para el frontend)
 - PostgreSQL 15 o superior
 - OpenSSL 3.x
 - Git
@@ -36,14 +35,14 @@ y firma digital RSA).
 
 ## Instalación y ejecución
 
-### 1. Clonar e instalar el backend
+### 1. Clonar e instalar la aplicación Python
 ```bash
 git clone https://github.com/VictorHL2006/GRUPO7_RoadmapAcademico.git
 cd GRUPO7_RoadmapAcademico
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env            # editar .env con valores locales
+touch .env                      # configurar las variables indicadas abajo
 bash scripts/generar_llaves.sh  # crea keys/private.pem y keys/public_key.pem
 ```
 
@@ -54,19 +53,50 @@ uvicorn backend.main:app --port 8000
 ```
 Comprobación: abrir http://localhost:8000/health
 
-### 3. Ejecutar el frontend (puerto 5173)
+### 3. Ejecutar la interfaz HTML (puerto 3000)
 ```bash
 cd frontend
-npm install
-npm run dev
+python -m http.server 3000
 ```
-Abrir http://localhost:5173
+Abrir http://localhost:3000. La interfaz consiste en páginas HTML, CSS y JavaScript sin React ni Vite.
 
-Si el backend no se ejecuta en `http://localhost:8000`, crear un archivo
-`frontend/.env` con:
-```bash
-VITE_API_URL=http://localhost:8000
-```
+### Variables de entorno
+El backend lee estas variables del entorno o del archivo `.env` local:
+
+| Variable | Uso | Valor predeterminado |
+|----------|-----|----------------------|
+| `DB_HOST` | Host de PostgreSQL | `localhost` |
+| `DB_PORT` | Puerto de PostgreSQL | `5432` |
+| `DB_NAME` | Base de datos | `roadmap_db` |
+| `DB_USER` | Usuario de PostgreSQL | `roadmap_user` |
+| `DB_PASSWORD` | Contraseña local de PostgreSQL | Vacío |
+| `JWT_SECRET` | Secreto para firmar sesiones; mínimo 32 caracteres | Sin valor válido; debe configurarse |
+| `PRIVATE_KEY_PATH` | Ruta de la llave privada RSA | `keys/private.pem` |
+| `PUBLIC_KEY_PATH` | Ruta de la llave pública RSA | `keys/public_key.pem` |
+| `MALLA_PATH` | Ruta del archivo de malla curricular | `data/malla.json` |
+| `FRONTEND_URL` | URL incluida en el PDF al generar un roadmap | `http://localhost:3000` |
+
+Para servir la interfaz local en el puerto 3000, configure `FRONTEND_URL=http://localhost:3000`.
+
+### Rutas disponibles
+| Método | Ruta | Acceso | Función |
+|--------|------|--------|---------|
+| `GET` | `/health` | Público | Estado de la API |
+| `POST` | `/auth/registro` | Público | Registrar estudiante |
+| `POST` | `/auth/login` | Público | Iniciar sesión y obtener JWT |
+| `GET`, `PUT` | `/perfil` | Sesión | Consultar y actualizar perfil |
+| `GET`, `POST` | `/historial` | Sesión | Consultar y agregar cursos aprobados |
+| `GET`, `PUT` | `/intereses` | Estudiante | Consultar y guardar intereses |
+| `POST` | `/roadmap/generar` | Estudiante | Generar y firmar un roadmap PDF |
+| `GET` | `/roadmaps` | Sesión | Listar roadmaps propios |
+| `GET` | `/roadmaps/{id}/pdf` | Propietario | Descargar PDF |
+| `GET` | `/roadmaps/{id}/firma` | Propietario | Descargar firma `.sig` |
+| `GET` | `/verificar/{id}` | Público | Verificar roadmap emitido por ID |
+| `POST` | `/verificar` | Público | Verificar PDF y firma subidos |
+| `GET` | `/tutor/estudiantes` | Tutor | Listar estudiantes y roadmaps |
+| `GET` | `/tutor/estudiantes/{codigo}/roadmaps` | Tutor | Listar roadmaps de un estudiante |
+
+La documentación interactiva de FastAPI está en `http://localhost:8000/docs`. La ruta `/auth/yo`, la emisión mediante `/roadmaps/emitir` y la verificación por código UUID descritas en la guía aún no existen con esos nombres en esta versión.
 
 ### 4. Pruebas
 Desde la raíz del repositorio:
@@ -80,8 +110,7 @@ pytest -q
 | 8000 | Backend (API REST) | Implementado |
 | 5432 | PostgreSQL (solo local, no se expone) | Implementado |
 | 4433 | Prueba de canal TLS 1.3 (openssl s_server) | Solo laboratorio |
-| 3000 | Frontend HTML estático | Disponible (python -m http.server) |
-| 5173 | Frontend (Vite) | React con enlaces a las vistas HTML V4–V8 |
+| 3000 | Interfaz HTML estática | Disponible (`python -m http.server 3000`) |
 
 Los puertos 80 (HTTP) y 21 (FTP) permanecen bloqueados; en producción se usa el 443 (HTTPS).
 
@@ -89,7 +118,7 @@ Los puertos 80 (HTTP) y 21 (FTP) permanecen bloqueados; en producción se usa el
 ```
 backend/          código del servidor (API REST)
   recomendacion/  motor de recomendación
-frontend/         páginas HTML compartidas y shell React/Vite
+frontend/         páginas HTML, CSS y JavaScript sin framework
 crypto/           utilidades criptográficas
 database/         esquema SQL y datos de prueba
 docs/diagramas/   diagramas del informe
@@ -105,7 +134,7 @@ tests/            pruebas automáticas
 - API FastAPI con CORS, registro e inicio de sesión JWT, verificación manual y por ID, panel protegido para tutores y `/health`.
 - Motor de recomendación con pruebas unitarias.
 - Scripts de generación de llaves, firma, verificación y certificado TLS.
-- Interfaz HTML para login, registro, panel, perfil, intereses, generación, roadmaps, visor, verificación y tutoría; Vite también sirve la interfaz React.
+- Interfaz HTML para login, registro, panel, perfil, intereses, generación, roadmaps, visor, verificación y tutoría.
 
 ### En curso
 - Cifrado AES-256-GCM de columnas sensibles.

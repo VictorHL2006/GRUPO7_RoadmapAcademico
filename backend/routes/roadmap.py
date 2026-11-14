@@ -35,7 +35,7 @@ def generar(max_creditos: int = Query(default=22, ge=1, le=40), usuario=Depends(
                                     {"codigo": estudiante[0], "nombre": estudiante[1],
                                      "aprobados": aprobados, "intereses": intereses}, max_creditos)
         rec["estudiante"] = estudiante[0]
-        verify_base = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        verify_base = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
         pdf = generar_pdf(rec, f"{verify_base}/verificar.html?id={roadmap_id}")
         hash_hex, firma = firmar_pdf(pdf)
         cur.execute("""INSERT INTO roadmaps_emitidos
