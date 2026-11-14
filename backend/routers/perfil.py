@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Body, Depends, HTTPException
+from pydantic import BaseModel, EmailStr, Field
+from psycopg2.errors import UniqueViolation
 from backend.auth import usuario_actual
 from backend.db import get_conn
 
@@ -9,14 +10,18 @@ NOTA_MINIMA = 12  # criterio de aprobado, configurable
 
 
 class PerfilIn(BaseModel):
-    nombres: str
-    correo: str
+    nombres: str = Field(min_length=1, max_length=100)
+    correo: EmailStr
 
 
 class CursoIn(BaseModel):
-    codigo_curso: str
-    nota: float
-    periodo: str
+    codigo_curso: str = Field(min_length=1, max_length=100)
+    nota: float = Field(ge=0, le=20)
+    periodo: str = Field(default="-", max_length=10)
+
+
+class HistorialIn(BaseModel):
+    cursos: list[CursoIn]
 
 
 @router.get("/perfil")
@@ -38,9 +43,12 @@ def leer_perfil(u=Depends(usuario_actual)):
 
 @router.put("/perfil")
 def actualizar_perfil(d: PerfilIn, u=Depends(usuario_actual)):
-    with get_conn() as cn, cn.cursor() as cur:
-        cur.execute("UPDATE usuarios SET nombre=%s, email=%s WHERE id=%s",
-                    (d.nombres, d.correo, u["id"]))
+    try:
+        with get_conn() as cn, cn.cursor() as cur:
+            cur.execute("UPDATE usuarios SET nombre=%s, email=%s WHERE id=%s",
+                        (d.nombres.strip(), str(d.correo).lower(), u["id"]))
+    except UniqueViolation as exc:
+        raise HTTPException(status_code=409, detail="El correo ya está registrado") from exc
     return {"mensaje": "Perfil actualizado"}
 
 
@@ -56,10 +64,25 @@ def listar_historial(u=Depends(usuario_actual)):
 
 @router.post("/historial")
 def agregar_curso(d: CursoIn, u=Depends(usuario_actual)):
-    if not 0 <= d.nota <= 20:
-        raise HTTPException(422, "La nota debe estar entre 0 y 20")
     with get_conn() as cn, cn.cursor() as cur:
         cur.execute("""INSERT INTO historial_academico (usuario_id, curso, nota, periodo)
                        VALUES (%s,%s,%s,%s)""",
                     (u["id"], d.codigo_curso.upper(), d.nota, d.periodo))
     return {"mensaje": "Curso agregado"}
+
+
+@router.put("/historial")
+def reemplazar_historial(
+    datos: list[CursoIn] | HistorialIn = Body(...), u=Depends(usuario_actual)
+):
+    cursos = datos.cursos if isinstance(datos, HistorialIn) else datos
+    with get_conn() as cn, cn.cursor() as cur:
+        cur.execute("DELETE FROM historial_academico WHERE usuario_id=%s", (u["id"],))
+        if cursos:
+            cur.executemany(
+                """INSERT INTO historial_academico (usuario_id, curso, nota, periodo)
+                   VALUES (%s,%s,%s,%s)""",
+                [(u["id"], curso.codigo_curso.strip().upper(), curso.nota, curso.periodo)
+                 for curso in cursos],
+            )
+    return {"mensaje": "Historial actualizado", "cursos": len(cursos)}

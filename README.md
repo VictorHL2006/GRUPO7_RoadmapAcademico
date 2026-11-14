@@ -42,18 +42,37 @@ cd GRUPO7_RoadmapAcademico
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-touch .env                      # configurar las variables indicadas abajo
 bash scripts/generar_llaves.sh  # crea keys/private.pem y keys/public_key.pem
 ```
 
-### 2. Ejecutar el backend (puerto 8000)
+En Windows PowerShell, activa el entorno con `venv\Scripts\Activate.ps1`. Crea `.env` si aún no existe y añade las variables requeridas de la tabla. `.env` y `keys/` son locales y no se suben al repositorio.
+
+### 2. Preparar PostgreSQL
+Crear un usuario y dos bases, una para la aplicación y otra reservada para pruebas:
+```sql
+CREATE USER roadmap_user WITH PASSWORD 'cambia_esta_clave';
+CREATE DATABASE roadmap_db OWNER roadmap_user;
+CREATE DATABASE roadmap_test OWNER roadmap_user;
+```
+Desde la raíz, aplicar el esquema a `roadmap_db`:
+```bash
+psql -U roadmap_user -h localhost -d roadmap_db -f database/schema.sql
+```
+El esquema crea las tablas si faltan y añade el UUID de verificación a los roadmaps existentes; no borra las tablas ni sus datos. Configura `DB_PASSWORD` en `.env` con la contraseña que elegiste.
+Opcionalmente, crea las cuentas ficticias para probar los roles:
+```bash
+python scripts/cargar_demo.py
+```
+Define `DEMO_ESTUDIANTE_PASSWORD` y `DEMO_TUTOR_PASSWORD` en `.env` con contraseñas locales propias antes de iniciar la demo.
+
+### 3. Ejecutar el backend (puerto 8000)
 Desde la raíz del repositorio:
 ```bash
 uvicorn backend.main:app --port 8000
 ```
 Comprobación: abrir http://localhost:8000/health
 
-### 3. Ejecutar la interfaz HTML (puerto 3000)
+### 4. Ejecutar la interfaz HTML (puerto 3000)
 ```bash
 cd frontend
 python -m http.server 3000
@@ -74,9 +93,14 @@ El backend lee estas variables del entorno o del archivo `.env` local:
 | `PRIVATE_KEY_PATH` | Ruta de la llave privada RSA | `keys/private.pem` |
 | `PUBLIC_KEY_PATH` | Ruta de la llave pública RSA | `keys/public_key.pem` |
 | `MALLA_PATH` | Ruta del archivo de malla curricular | `data/malla.json` |
-| `FRONTEND_URL` | URL incluida en el PDF al generar un roadmap | `http://localhost:3000` |
+| `MAX_CREDITOS` | Tope predeterminado para recomendar y emitir | `22` |
+| `API_BASE_URL` | Origen del backend usado por el QR de verificación | `http://localhost:8000` |
+| `FRONTEND_URL` | Origen al que redirige el enlace corto `/v/{codigo}` | `http://localhost:3000` |
+| `CORS_ORIGINS` | Orígenes permitidos separados por coma | `http://localhost:3000,http://127.0.0.1:3000` |
+| `DEMO_ESTUDIANTE_PASSWORD` | Contraseña local de la cuenta ficticia E001 | Valor de desarrollo del script si no se define |
+| `DEMO_TUTOR_PASSWORD` | Contraseña local de la cuenta ficticia T001 | Valor de desarrollo del script si no se define |
 
-Para servir la interfaz local en el puerto 3000, configure `FRONTEND_URL=http://localhost:3000`.
+Al servir la interfaz en el puerto 3000, añade `CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000` a `.env`. Para probar desde otra dirección, agrega su origen a esa lista.
 
 ### Rutas disponibles
 | Método | Ruta | Acceso | Función |
@@ -84,35 +108,41 @@ Para servir la interfaz local en el puerto 3000, configure `FRONTEND_URL=http://
 | `GET` | `/health` | Público | Estado de la API |
 | `POST` | `/auth/registro` | Público | Registrar estudiante |
 | `POST` | `/auth/login` | Público | Iniciar sesión y obtener JWT |
+| `GET` | `/auth/yo` | Sesión | Obtener la identidad del usuario actual |
 | `GET`, `PUT` | `/perfil` | Sesión | Consultar y actualizar perfil |
+| `GET`, `PUT` | `/perfil/intereses` | Estudiante | Consultar y guardar intereses (alias de `/intereses`) |
 | `GET`, `POST` | `/historial` | Sesión | Consultar y agregar cursos aprobados |
+| `PUT` | `/historial` | Sesión | Reemplazar el historial completo |
 | `GET`, `PUT` | `/intereses` | Estudiante | Consultar y guardar intereses |
-| `POST` | `/roadmap/generar` | Estudiante | Generar y firmar un roadmap PDF |
+| `POST` | `/roadmaps/recomendar` | Estudiante | Recomendar sin emitir un documento |
+| `POST` | `/roadmaps/emitir` | Estudiante | Generar, firmar y guardar un PDF con UUID y QR |
 | `GET` | `/roadmaps` | Sesión | Listar roadmaps propios |
-| `GET` | `/roadmaps/{id}/pdf` | Propietario | Descargar PDF |
-| `GET` | `/roadmaps/{id}/firma` | Propietario | Descargar firma `.sig` |
-| `GET` | `/verificar/{id}` | Público | Verificar roadmap emitido por ID |
+| `GET` | `/roadmaps/{id_o_codigo}/pdf` | Propietario o tutor | Descargar PDF por ID o código UUID |
+| `GET` | `/roadmaps/{id_o_codigo}/firma` | Propietario o tutor | Descargar firma `.sig` por ID o código UUID |
+| `GET` | `/verificar/{id_o_codigo}` | Público | Verificar estado por ID o código UUID |
 | `POST` | `/verificar` | Público | Verificar PDF y firma subidos |
+| `POST` | `/verificar/{codigo}/documento` | Público | Comparar un PDF con el roadmap emitido |
+| `GET` | `/v/{codigo}` | Público | Redirigir el QR al portal HTML de verificación |
 | `GET` | `/tutor/estudiantes` | Tutor | Listar estudiantes y roadmaps |
 | `GET` | `/tutor/estudiantes/{codigo}/roadmaps` | Tutor | Listar roadmaps de un estudiante |
 
-La documentación interactiva de FastAPI está en `http://localhost:8000/docs`. La ruta `/auth/yo`, la emisión mediante `/roadmaps/emitir` y la verificación por código UUID descritas en la guía aún no existen con esos nombres en esta versión.
+La documentación interactiva de FastAPI está en `http://localhost:8000/docs`. La ruta anterior `/roadmap/generar` se conserva para las páginas HTML existentes.
 
-### 4. Pruebas
+### 5. Pruebas
 Desde la raíz del repositorio:
 ```bash
 pytest -q
 ```
+La suite local actual prueba los handlers con dobles de base de datos. Para futuras pruebas integradas, usa exclusivamente `roadmap_test`, nunca `roadmap_db`.
 
 ## Puertos
 | Puerto | Uso | Estado |
 |--------|-----|--------|
 | 8000 | Backend (API REST) | Implementado |
 | 5432 | PostgreSQL (solo local, no se expone) | Implementado |
-| 4433 | Prueba de canal TLS 1.3 (openssl s_server) | Solo laboratorio |
 | 3000 | Interfaz HTML estática | Disponible (`python -m http.server 3000`) |
 
-Los puertos 80 (HTTP) y 21 (FTP) permanecen bloqueados; en producción se usa el 443 (HTTPS).
+La API local se sirve por HTTP en el puerto 8000. El despliegue HTTPS no se configura desde esta versión de `backend.main`.
 
 ## Estructura del repositorio
 ```
@@ -130,17 +160,17 @@ tests/            pruebas automáticas
 
 ## Estado del proyecto
 ### Hecho
-- Estructura base del repositorio, .gitignore, .env.example y dependencias.
-- API FastAPI con CORS, registro e inicio de sesión JWT, verificación manual y por ID, panel protegido para tutores y `/health`.
+- Estructura base del repositorio, `.gitignore` y dependencias.
+- API FastAPI con CORS configurable, registro/login JWT, perfil, historial, intereses, recomendación y emisión de PDF firmado, verificación por archivos o código, panel protegido para tutores y `/health`.
 - Motor de recomendación con pruebas unitarias.
 - Scripts de generación de llaves, firma, verificación y certificado TLS.
 - Interfaz HTML para login, registro, panel, perfil, intereses, generación, roadmaps, visor, verificación y tutoría.
 
 ### En curso
-- Cifrado AES-256-GCM de columnas sensibles.
+- Cifrado AES-256-GCM de correo, intereses y notas, correspondiente al módulo de criptografía.
 
 ### Pendiente
-- Validar el flujo completo en el entorno local con PostgreSQL y navegador.
+- Ejecutar las pruebas integradas de la API y el recorrido completo con PostgreSQL en una instalación local.
 
 ## Seguridad (qué no se sube al repositorio)
 - Llaves y certificados (`*.pem`, `*.key`, `*.sig`).

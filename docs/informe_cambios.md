@@ -2,7 +2,7 @@
 
 ## Alcance
 
-Se retiró el frontend construido con React y Vite para dejar el backend Python y las vistas estáticas existentes. La guía identifica las tareas de integración y API con Román Pinto Leroy Raúl; actualicé el README con las rutas y variables de entorno que sí existen en el código actual.
+Se retiró el frontend construido con React y Vite para dejar el backend Python y las vistas estáticas existentes. Para la parte de Román, completé las rutas de identidad, intereses, historial, recomendación, emisión, y verificación pública por UUID, y documenté el contrato actual de la API.
 
 ## Cambios realizados
 
@@ -10,11 +10,14 @@ Se retiró el frontend construido con React y Vite para dejar el backend Python 
 - Conservadas las pantallas HTML, CSS y JavaScript estáticas de `frontend/`.
 - Actualizado el README raíz: ejecución sin Node.js, servidor estático en puerto 3000, endpoints reales y variables de entorno.
 - Cambiado el enlace de verificación predeterminado de los PDFs al puerto 3000 para coincidir con el servidor estático.
-- Se dejó explícito en el README que algunas rutas descritas por la guía todavía no están implementadas en esta versión.
+- Añadida migración no destructiva que incorpora UUID de verificación y mantiene los IDs numéricos usados por las páginas existentes.
+- Configurado CORS por `CORS_ORIGINS` y actualizado el `.env` local (ignorado por Git) para los orígenes 3000, el backend 8000 y la redirección del QR.
+- Conservada compatibilidad con `/intereses` y `/roadmap/generar`; se agregaron los alias y endpoints nuevos de la guía.
+- El README documenta los endpoints existentes, el esquema, variables de entorno, puertos y límites del despliegue actual.
 
 ## Verificación
 
-Se revisó que los archivos eliminados fueran exclusivos del shell React/Vite y que las páginas estáticas permanecieran. No ejecuté pruebas ni la API durante este cambio. El árbol Git aún requiere la autorización local para crear la rama y registrar el commit, porque `.git` está protegido como solo lectura.
+`pytest -q`: 42 pruebas pasaron (38 pruebas de handlers/servicios API con dobles de base de datos y 4 del motor). La compilación de módulos Python terminó correctamente. La base PostgreSQL local no está activa, así que no se pudo ejecutar un recorrido integrado con persistencia real. La comprobación de secretos encontró que `.env`, llaves y firmas no están versionadas.
 
 ## Imagen de referencia
 

@@ -33,8 +33,16 @@ CREATE TABLE IF NOT EXISTS roadmaps_emitidos (
     hash_sha256 CHAR(64) NOT NULL,
     firma BYTEA NOT NULL,
     archivo_pdf BYTEA,
+    codigo_verificacion UUID,
     especialidad VARCHAR(100),
     creditos INTEGER,
     emitido_en TIMESTAMP NOT NULL DEFAULT NOW()
 );
 ALTER TABLE roadmaps_emitidos ADD COLUMN IF NOT EXISTS archivo_pdf BYTEA;
+ALTER TABLE roadmaps_emitidos ADD COLUMN IF NOT EXISTS codigo_verificacion UUID;
+UPDATE roadmaps_emitidos SET codigo_verificacion=gen_random_uuid()
+    WHERE codigo_verificacion IS NULL;
+ALTER TABLE roadmaps_emitidos ALTER COLUMN codigo_verificacion SET DEFAULT gen_random_uuid();
+ALTER TABLE roadmaps_emitidos ALTER COLUMN codigo_verificacion SET NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS roadmaps_emitidos_codigo_verificacion_uq
+    ON roadmaps_emitidos (codigo_verificacion);

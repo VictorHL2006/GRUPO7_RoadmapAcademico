@@ -16,6 +16,7 @@ def _estudiante(usuario):
         raise HTTPException(status_code=403, detail="Acceso reservado a estudiantes")
 
 
+@router.get("/perfil/intereses")
 @router.get("/intereses")
 def leer_intereses(usuario=Depends(usuario_actual)):
     _estudiante(usuario)
@@ -24,6 +25,7 @@ def leer_intereses(usuario=Depends(usuario_actual)):
         return {"intereses": [row[0] for row in cur.fetchall()]}
 
 
+@router.put("/perfil/intereses")
 @router.put("/intereses")
 def guardar_intereses(datos: InteresesIn, usuario=Depends(usuario_actual)):
     _estudiante(usuario)
