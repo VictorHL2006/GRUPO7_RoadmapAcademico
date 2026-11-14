@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Seguridad y estado de implementación</title>
+  <desc id="desc">Controles actuales de autenticación y firma digital, con cifrado de columnas y HTTPS marcados como pendientes.</desc>
+  <defs>
+    <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#172b4d}.title{font-size:34px;font-weight:700}.sub{font-size:18px;fill:#52657a}.head{font-size:24px;font-weight:700}.body{font-size:18px}.small{font-size:15px;fill:#52657a}.ok{fill:#eaf7ee;stroke:#55a36d}.pending{fill:#fff4e5;stroke:#d28b35}.box{stroke-width:2.5;rx:20}.pill{font-size:14px;font-weight:700}</style>
+  </defs>
+  <rect width="1600" height="900" fill="#f4f7fb"/>
+  <text x="65" y="75" class="title">Seguridad: implementado y pendiente</text>
+  <text x="65" y="112" class="sub">Vista de la implementación actual; los límites están señalados para evitar atribuir controles todavía no conectados</text>
+
+  <rect x="65" y="175" width="450" height="540" class="box ok"/>
+  <text x="105" y="225" class="head">Autenticación y sesión</text>
+  <rect x="105" y="260" width="370" height="105" rx="15" fill="#ffffff" stroke="#a5c8ae" stroke-width="2"/>
+  <text x="130" y="300" class="body">Contraseña</text><text x="130" y="337" class="small">PBKDF2-HMAC-SHA256 · 200 000 iteraciones</text>
+  <rect x="105" y="390" width="370" height="105" rx="15" fill="#ffffff" stroke="#a5c8ae" stroke-width="2"/>
+  <text x="130" y="432" class="body">Token JWT · HS256</text><text x="130" y="468" class="small">JWT_SECRET se configura en .env</text>
+  <rect x="105" y="520" width="370" height="115" rx="15" fill="#ffffff" stroke="#a5c8ae" stroke-width="2"/>
+  <text x="130" y="562" class="body">Roles y autorización</text><text x="130" y="598" class="small">estudiante / tutor · verificación en API</text>
+  <rect x="345" y="230" width="130" height="24" rx="15" fill="#d4f0d0"/><text x="367" y="248" class="pill">ACTIVO</text>
+
+  <rect x="575" y="175" width="450" height="540" class="box ok"/>
+  <text x="615" y="225" class="head">Integridad del documento</text>
+  <rect x="615" y="260" width="370" height="105" rx="15" fill="#ffffff" stroke="#a5c8ae" stroke-width="2"/>
+  <text x="640" y="300" class="body">Hash SHA-256</text><text x="640" y="337" class="small">calculado para cada PDF emitido</text>
+  <rect x="615" y="390" width="370" height="105" rx="15" fill="#ffffff" stroke="#a5c8ae" stroke-width="2"/>
+  <text x="640" y="432" class="body">Firma RSA</text><text x="640" y="468" class="small">PKCS#1 v1.5 · firma .sig separada</text>
+  <rect x="615" y="520" width="370" height="115" rx="15" fill="#ffffff" stroke="#a5c8ae" stroke-width="2"/>
+  <text x="640" y="562" class="body">Llaves locales</text><text x="640" y="598" class="small">keys/ y .env están ignorados por Git</text>
+  <rect x="855" y="230" width="130" height="24" rx="15" fill="#d4f0d0"/><text x="877" y="248" class="pill">ACTIVO</text>
+
+  <rect x="1085" y="175" width="450" height="540" class="box pending"/>
+  <text x="1125" y="225" class="head">Persistencia y transporte</text>
+  <rect x="1125" y="260" width="370" height="140" rx="15" fill="#ffffff" stroke="#e0bd83" stroke-width="2"/>
+  <text x="1150" y="302" class="body">PostgreSQL local</text><text x="1150" y="340" class="small">Correo, intereses y notas aún</text><text x="1150" y="370" class="small">no se cifran con AES en este backend</text>
+  <rect x="1125" y="425" width="370" height="105" rx="15" fill="#ffffff" stroke="#e0bd83" stroke-width="2"/>
+  <text x="1150" y="468" class="body">Cifrado AES-256-GCM</text><text x="1150" y="505" class="small">Pendiente de integrar</text>
+  <rect x="1125" y="555" width="370" height="105" rx="15" fill="#ffffff" stroke="#e0bd83" stroke-width="2"/>
+  <text x="1150" y="598" class="body">HTTPS / TLS 1.3</text><text x="1150" y="635" class="small">El servidor actual usa HTTP local</text>
+  <rect x="1365" y="230" width="130" height="24" rx="15" fill="#ffe3b3"/><text x="1387" y="248" class="pill">PENDIENTE</text>
+
+  <text x="65" y="785" class="small">No compartir .env ni llaves privadas. Los certificados de laboratorio no activan HTTPS automáticamente en FastAPI.</text>
+</svg>

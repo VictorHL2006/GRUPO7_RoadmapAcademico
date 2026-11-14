@@ -1,22 +1,30 @@
-# Llaves y certificados
+# Local secrets and private material
+.env
+.env.*
+!.env.example
 *.pem
 *.key
 *.sig
 keys/*
 !keys/.gitkeep
 
-# Variables de entorno
-.env
-
 # Python
 venv/
+.venv/
 __pycache__/
-*.pyc
+*.py[cod]
 .pytest_cache/
-documento.txt
+.mypy_cache/
+.ruff_cache/
 
-# Editor / sistema
+# Package/build output
+node_modules/
+dist/
+build/
+
+# Local data and editor files
+documento.txt
 .vscode/
 .idea/
-.DS_Storekeys/private_key.pem
-.env
+.DS_Store
+Thumbs.db

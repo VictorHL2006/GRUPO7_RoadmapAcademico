@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Arquitectura de Roadmap Académico</title>
+  <desc id="desc">Navegador con páginas estáticas servidas por Python, API FastAPI, base PostgreSQL y llaves RSA locales.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 Z" fill="#52657a"/></marker>
+    <style>
+      text{font-family:Segoe UI,Arial,sans-serif;fill:#172b4d}.title{font-size:34px;font-weight:700}.sub{font-size:18px;fill:#52657a}.head{font-size:24px;font-weight:700}.body{font-size:18px}.small{font-size:15px;fill:#52657a}.box{stroke-width:2.5;rx:22}.line{fill:none;stroke:#52657a;stroke-width:3;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f4f7fb"/>
+  <text x="70" y="74" class="title">Arquitectura de Roadmap Académico</text>
+  <text x="70" y="110" class="sub">Interfaz estática servida por Python, API FastAPI y persistencia en PostgreSQL</text>
+
+  <rect x="70" y="190" width="380" height="390" class="box" fill="#ffffff" stroke="#6b8db5"/>
+  <text x="105" y="235" class="head">Navegador</text>
+  <text x="105" y="278" class="body">Pantallas HTML/CSS/JS</text>
+  <text x="125" y="320" class="body">Registro y login</text>
+  <text x="125" y="358" class="body">Perfil, historial, intereses</text>
+  <text x="125" y="396" class="body">Recomendación y emisión</text>
+  <text x="125" y="434" class="body">Verificación y tutor</text>
+  <rect x="105" y="480" width="300" height="58" rx="12" fill="#e9f1fb"/>
+  <text x="130" y="516" class="body">Origen: localhost:3000</text>
+
+  <rect x="545" y="220" width="300" height="280" class="box" fill="#e8f3ff" stroke="#4d86bd"/>
+  <text x="580" y="270" class="head">Servidor estático</text>
+  <text x="580" y="315" class="body">Python http.server</text>
+  <text x="580" y="355" class="body">Entrega frontend/</text>
+  <text x="580" y="410" class="small">Sin Node, npm, Vite ni React</text>
+  <text x="580" y="455" class="small">Puerto local 3000</text>
+
+  <rect x="950" y="170" width="560" height="500" class="box" fill="#eaf7ee" stroke="#55a36d"/>
+  <text x="990" y="220" class="head">API FastAPI · puerto 8000</text>
+  <rect x="990" y="250" width="220" height="105" rx="14" fill="#ffffff" stroke="#9bb9a4" stroke-width="2"/>
+  <text x="1010" y="292" class="body">Auth y JWT</text><text x="1010" y="326" class="small">roles: estudiante/tutor</text>
+  <rect x="1240" y="250" width="230" height="105" rx="14" fill="#ffffff" stroke="#9bb9a4" stroke-width="2"/>
+  <text x="1260" y="292" class="body">Perfil e historial</text><text x="1260" y="326" class="small">intereses incluidos</text>
+  <rect x="990" y="385" width="220" height="115" rx="14" fill="#ffffff" stroke="#9bb9a4" stroke-width="2"/>
+  <text x="1010" y="430" class="body">Motor de cursos</text><text x="1010" y="465" class="small">malla JSON</text>
+  <rect x="1240" y="385" width="230" height="115" rx="14" fill="#ffffff" stroke="#9bb9a4" stroke-width="2"/>
+  <text x="1260" y="430" class="body">PDF, QR y firma</text><text x="1260" y="465" class="small">RSA + SHA-256</text>
+  <rect x="1090" y="540" width="290" height="75" rx="14" fill="#fff7df" stroke="#d3ad51" stroke-width="2"/>
+  <text x="1120" y="585" class="body">Verificación pública</text>
+
+  <rect x="590" y="690" width="420" height="145" class="box" fill="#fff7df" stroke="#d3ad51"/>
+  <text x="625" y="735" class="head">PostgreSQL</text>
+  <text x="625" y="775" class="body">usuarios · preferencias · historial</text>
+  <text x="625" y="810" class="body">roadmaps, PDF, firma, UUID</text>
+
+  <rect x="1080" y="720" width="350" height="115" class="box" fill="#f3edff" stroke="#8b75ba"/>
+  <text x="1115" y="765" class="head">Llaves RSA locales</text>
+  <text x="1115" y="805" class="body">keys/ · ignorada por Git</text>
+
+  <path d="M450 350 H530" class="line"/><text x="465" y="330" class="small">solicita páginas</text>
+  <path d="M545 465 C500 620 465 630 430 535" class="line"/><text x="445" y="614" class="small">HTML/JS</text>
+  <path d="M450 555 C600 635 780 635 920 555" class="line"/><text x="655" y="660" class="small">fetch + JWT · CORS</text>
+  <path d="M1000 670 C940 745 930 755 1000 755" class="line"/><text x="830" y="720" class="small">leer/escribir</text>
+  <path d="M1255 675 V710" class="line"/><text x="1275" y="700" class="small">firmar/verificar</text>
+</svg>

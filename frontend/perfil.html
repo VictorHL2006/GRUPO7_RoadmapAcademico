@@ -63,10 +63,33 @@
     }
     function pintar() {
       const f = filtro.value;
-      tabla.innerHTML = historial.filter(h => f === "" || String(h.aprobado ? 1 : 0) === f).map(h =>
-        "<tr><td>" + h.codigo_curso + "</td><td>" + h.nota + "</td><td>" + h.periodo + "</td><td>" +
-        (h.aprobado ? '<span class="badge bg-success">Aprobado</span>' : '<span class="badge bg-danger">Desaprobado</span>') +
-        "</td></tr>").join("") || '<tr><td colspan="4" class="text-center text-muted">Sin cursos registrados</td></tr>';
+      const cursos = historial.filter(h => f === "" || String(h.aprobado ? 1 : 0) === f);
+      tabla.replaceChildren();
+      if (!cursos.length) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 4;
+        cell.className = "text-center text-muted";
+        cell.textContent = "Sin cursos registrados";
+        row.append(cell);
+        tabla.append(row);
+        return;
+      }
+      for (const curso of cursos) {
+        const row = document.createElement("tr");
+        for (const value of [curso.codigo_curso, curso.nota, curso.periodo]) {
+          const cell = document.createElement("td");
+          cell.textContent = value ?? "";
+          row.append(cell);
+        }
+        const stateCell = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = "badge " + (curso.aprobado ? "bg-success" : "bg-danger");
+        badge.textContent = curso.aprobado ? "Aprobado" : "Desaprobado";
+        stateCell.append(badge);
+        row.append(stateCell);
+        tabla.append(row);
+      }
     }
     async function guardarPerfil() {
       try { await api("/perfil", { method: "PUT", body: { nombres: nombres.value, correo: correo.value } });

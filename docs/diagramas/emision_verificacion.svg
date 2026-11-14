@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Emisión y verificación del roadmap</title>
+  <desc id="desc">Recorrido desde el historial del estudiante hasta el PDF firmado, su QR y la comprobación pública.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 Z" fill="#52657a"/></marker>
+    <style>text{font-family:Segoe UI,Arial,sans-serif;fill:#172b4d}.title{font-size:34px;font-weight:700}.sub{font-size:18px;fill:#52657a}.head{font-size:21px;font-weight:700}.body{font-size:17px}.small{font-size:15px;fill:#52657a}.box{stroke-width:2.5;rx:18}.line{fill:none;stroke:#52657a;stroke-width:3;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1600" height="900" fill="#f4f7fb"/>
+  <text x="65" y="75" class="title">Emisión y verificación</text>
+  <text x="65" y="112" class="sub">La vista previa no emite el documento; la acción de emisión crea y guarda un PDF verificable</text>
+
+  <rect x="70" y="210" width="300" height="155" class="box" fill="#e8f3ff" stroke="#4d86bd"/>
+  <text x="100" y="255" class="head">1 · Estudiante</text><text x="100" y="295" class="body">Guarda intereses</text><text x="100" y="330" class="body">y cursos aprobados</text>
+  <rect x="455" y="210" width="300" height="155" class="box" fill="#eaf7ee" stroke="#55a36d"/>
+  <text x="485" y="255" class="head">2 · Recomendar</text><text x="485" y="295" class="body">POST /roadmaps/recomendar</text><text x="485" y="330" class="small">motor + malla curricular</text>
+  <rect x="840" y="210" width="300" height="155" class="box" fill="#fff7df" stroke="#d3ad51"/>
+  <text x="870" y="255" class="head">3 · Confirmar emisión</text><text x="870" y="295" class="body">POST /roadmaps/emitir</text><text x="870" y="330" class="small">genera UUID de verificación</text>
+  <rect x="1225" y="210" width="300" height="155" class="box" fill="#f3edff" stroke="#8b75ba"/>
+  <text x="1255" y="255" class="head">4 · Crear PDF</text><text x="1255" y="295" class="body">tabla de cursos + QR</text><text x="1255" y="330" class="small">QR apunta a /v/{uuid}</text>
+  <path d="M370 285 H440" class="line"/><path d="M755 285 H825" class="line"/><path d="M1140 285 H1210" class="line"/>
+
+  <rect x="1225" y="480" width="300" height="165" class="box" fill="#f3edff" stroke="#8b75ba"/>
+  <text x="1255" y="525" class="head">5 · Firmar y guardar</text><text x="1255" y="565" class="body">RSA PKCS#1 v1.5</text><text x="1255" y="600" class="body">SHA-256 + PostgreSQL</text><text x="1255" y="630" class="small">firma .sig separada del PDF</text>
+  <rect x="840" y="480" width="300" height="165" class="box" fill="#e8f3ff" stroke="#4d86bd"/>
+  <text x="870" y="525" class="head">6 · Abrir QR</text><text x="870" y="565" class="body">GET /v/{uuid}</text><text x="870" y="600" class="body">redirige a la página HTML</text><text x="870" y="630" class="small">verificar.html?codigo=…</text>
+  <rect x="455" y="480" width="300" height="165" class="box" fill="#fff7df" stroke="#d3ad51"/>
+  <text x="485" y="525" class="head">7 · Comprobar</text><text x="485" y="565" class="body">GET /verificar/{uuid}</text><text x="485" y="600" class="body">o subir PDF emitido</text><text x="485" y="630" class="small">firma + hash + archivo</text>
+  <rect x="70" y="480" width="300" height="165" class="box" fill="#eaf7ee" stroke="#55a36d"/>
+  <text x="100" y="525" class="head">8 · Resultado</text><text x="100" y="570" class="body" fill="#267344">Documento auténtico</text><text x="100" y="610" class="body" fill="#a83e3e">Documento alterado</text>
+  <path d="M1375 365 V465" class="line"/><path d="M1225 560 H1150" class="line"/><path d="M840 560 H765" class="line"/><path d="M455 560 H385" class="line"/>
+  <text x="70" y="755" class="small">La firma se almacena de forma desacoplada; no es una firma PAdES incrustada en el PDF.</text>
+</svg>
