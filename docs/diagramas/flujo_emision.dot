@@ -1,0 +1,11 @@
+digraph G { rankdir=TB; fontname="Helvetica"; node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=13, margin="0.2,0.12", fillcolor="#eef3f8"]; edge [color="#555555", fontname="Helvetica", fontsize=11]; dpi=200; label="Flujo de emisión de un roadmap firmado"; labelloc=t; fontsize=16;
+ a [label="1. Estudiante pulsa «Generar» (Api POST /roadmaps/emitir o /roadmap/generar)", fillcolor="#d4f0d0"];
+ b [label="2. Backend valida el JWT y el rol = estudiante"];
+ c [label="3. Lee perfil, intereses e historial\n(descifra los datos cuando exista el cifrado)", style="rounded,filled,dashed"];
+ d [label="4. Motor de recomendación\nplan por ciclos, tope de créditos y dificultad"];
+ e [label="5. Genera código UUID de verificación"];
+ f [label="6. Genera PDF con tabla de ciclos\ny código QR → API_BASE_URL/v/{UUID}"];
+ g [label="7. Calcula SHA-256 del PDF y lo firma\ncon la llave privada RSA", fillcolor="#ffe3b3"];
+ h [label="8. Guarda PDF, firma y UUID en PostgreSQL", shape=cylinder, fillcolor="#cfe8ff"];
+ i [label="9. Estudiante descarga PDF y .sig\n(GET /roadmaps/{codigo}/pdf y /firma)", fillcolor="#d4f0d0"];
+ a->b->c->d->e->f->g->h->i; }

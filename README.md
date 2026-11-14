@@ -42,10 +42,21 @@ cd GRUPO7_RoadmapAcademico
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+cp .env.example .env            # luego edita .env (ver paso siguiente)
 bash scripts/generar_llaves.sh  # crea keys/private.pem y keys/public_key.pem
 ```
 
-En Windows PowerShell, activa el entorno con `venv\Scripts\Activate.ps1`. Crea `.env` si aún no existe y añade las variables requeridas de la tabla. `.env` y `keys/` son locales y no se suben al repositorio.
+En Windows PowerShell, activa el entorno con `venv\Scripts\Activate.ps1`. `.env` y `keys/` son locales y no se suben al repositorio.
+
+Edita `.env` y completa como mínimo:
+- `DB_PASSWORD`: la contraseña que usarás para `roadmap_user` en PostgreSQL.
+- `JWT_SECRET`: mínimo 32 caracteres. Genéralo con:
+  ```bash
+  python -c "import secrets; print(secrets.token_hex(32))"
+  ```
+- `DEMO_ESTUDIANTE_PASSWORD` y `DEMO_TUTOR_PASSWORD` (solo si cargarás las cuentas de demostración).
+
+Si usas Git Bash en Windows, `bash scripts/generar_llaves.sh` requiere que OpenSSL esté en el PATH (`openssl version` debe funcionar).
 
 ### 2. Preparar PostgreSQL
 Crear un usuario y dos bases, una para la aplicación y otra reservada para pruebas:
@@ -77,7 +88,13 @@ Comprobación: abrir http://localhost:8000/health
 cd frontend
 python -m http.server 3000
 ```
-Abrir http://localhost:3000. La interfaz consiste en páginas HTML, CSS y JavaScript sin React ni Vite.
+Abrir http://localhost:3000/login.html. La interfaz consiste en páginas HTML, CSS y JavaScript sin React ni Vite.
+
+El cliente de la API es `frontend/js/api.js`. Para apuntar a otro backend, define `window.API_URL` antes de cargarlo (por defecto `http://localhost:8000`); ese origen del frontend debe estar en `CORS_ORIGINS`.
+
+**Cuentas de demostración** (tras `python scripts/cargar_demo.py`): estudiante `e001@example.com` y tutor `t001@example.com`, con las contraseñas definidas en `.env`.
+
+**Flujo para probar a mano:** iniciar sesión → Perfil e historial → Intereses → Generar roadmap → Mis Roadmaps (descargar PDF y firma) → escanear el QR o abrir `verificar.html`. El tutor entra por el mismo login y ve el panel de estudiantes.
 
 ### Variables de entorno
 El backend lee estas variables del entorno o del archivo `.env` local:
@@ -135,6 +152,15 @@ pytest -q
 ```
 La suite local actual prueba los handlers con dobles de base de datos. Para futuras pruebas integradas, usa exclusivamente `roadmap_test`, nunca `roadmap_db`.
 
+## Diagramas
+En `docs/diagramas/` (fuente `.dot` + PNG):
+- `mapa_navegacion.png`: pantallas y roles.
+- `arquitectura_general.png`: componentes, PDF/QR, firma, cifrado y HTTPS.
+- `flujo_emision.png`: emisión de un roadmap firmado.
+- `flujo_verificacion.png`: verificación por código QR, por archivos y por documento subido.
+
+Los elementos aún no implementados aparecen con línea punteada.
+
 ## Puertos
 | Puerto | Uso | Estado |
 |--------|-----|--------|
@@ -174,5 +200,19 @@ tests/            pruebas automáticas
 
 ## Seguridad (qué no se sube al repositorio)
 - Llaves y certificados (`*.pem`, `*.key`, `*.sig`).
-- El archivo `.env` con contraseñas locales.
+- El archivo `.env` con contraseñas locales; solo se sube `.env.example`, sin valores reales.
 - Datos reales de estudiantes: solo se usan datos ficticios.
+- Cada integrante genera sus propias llaves y secretos (`generar_llaves.sh`, `JWT_SECRET`).
+
+**Sobre el token de sesión:** el frontend guarda el token JWT en `sessionStorage`, que se borra al cerrar la pestaña. Es suficiente para este proyecto, pero si alguna página tuviera una falla XSS, el token quedaría expuesto.
+
+## Limitaciones conocidas (no implementado en esta versión)
+| Tema | Estado |
+|------|--------|
+| Firma incrustada en el PDF (PAdES) | No se hace: la firma es desacoplada, guardada en la base y descargable como `.sig`. |
+| Recuperación de contraseña | No disponible en esta versión. |
+| Límite de intentos de inicio de sesión | No implementado; es una mejora recomendada antes de un uso real. |
+| Cifrado en reposo de disco y copias de seguridad | Fuera del alcance. |
+| Rotación de la clave de cifrado | No implementada: cambiar `ENCRYPTION_KEY` exige volver a cifrar los datos. |
+| Despliegue en la nube y HTTPS | No se hizo. El sistema corre en local por HTTP; HTTPS usaría un certificado autofirmado de laboratorio. |
+| Hash de contraseñas | Se usa PBKDF2-HMAC-SHA256 con sal (200 000 iteraciones, biblioteca estándar), no Argon2 ni bcrypt. |

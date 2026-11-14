@@ -1,0 +1,9 @@
+digraph G { rankdir=TB; fontname="Helvetica"; node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=13, margin="0.2,0.12", fillcolor="#eef3f8"]; edge [color="#555555", fontname="Helvetica", fontsize=11]; dpi=150; label="Flujo de verificación (acceso público)"; labelloc=t; fontsize=16;
+ start [label="Tercero recibe un PDF de roadmap", fillcolor="#d4f0d0"];
+ qr [label="A. Escanea el QR\nGET /v/{codigo}"]; cod [label="Redirige a verificar.html\nGET /verificar/{codigo}"];
+ arc [label="B. Sube PDF + firma .sig\nPOST /verificar"]; doc [label="C. Sube solo el PDF\nPOST /verificar/{codigo}/documento"];
+ bd [label="Consulta la base:\nestado del roadmap", shape=cylinder, fillcolor="#cfe8ff"];
+ h [label="Calcula SHA-256 del PDF"]; v [label="Verifica firma con la llave pública RSA", fillcolor="#ffe3b3"];
+ cmp [label="Compara con el PDF emitido"];
+ ok [label="Documento auténtico\n(nombre abreviado del titular)", fillcolor="#d4f0d0"]; bad [label="Documento alterado", fillcolor="#f5d6d6"];
+ start->qr->cod->bd; start->arc->h->v; start->doc->cmp; bd->ok; v->ok; v->bad; cmp->ok; cmp->bad; }

@@ -1,0 +1,16 @@
+digraph G { rankdir=LR; fontname="Helvetica"; node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=13, margin="0.2,0.12", fillcolor="#eef3f8"]; edge [color="#555555", fontname="Helvetica", fontsize=11]; dpi=150; label="Arquitectura general (línea punteada = en desarrollo)"; labelloc=t; fontsize=16;
+ U [label="Usuario\n(estudiante / tutor)", fillcolor="#d4f0d0"];
+ subgraph cluster_f { label="Frontend (HTML + JS, puerto 3000)"; style=dashed; color="#999999";
+   F [label="Pantallas\nlogin, perfil, intereses,\ngenerar, roadmaps, visor,\nverificar, tutor"]; A [label="js/api.js\n(token JWT, errores)"]; F->A; }
+ subgraph cluster_b { label="Backend FastAPI (puerto 8000)"; style=dashed; color="#999999";
+   R [label="Routers\nauth, perfil, roadmaps,\nverificacion, tutor"];
+   M [label="Motor de\nrecomendación"]; P [label="Generador PDF\n+ código QR"]; S [label="Firma digital\nRSA + SHA-256", fillcolor="#ffe3b3"];
+   C [label="Cifrado AES-256-GCM\n(correo, intereses, notas)", style="rounded,filled,dashed"];
+   R->M; R->P; R->S; R->C [style=dashed]; }
+ DB [label="PostgreSQL\nusuarios, historial,\nroadmaps, firmas", shape=cylinder, fillcolor="#cfe8ff"];
+ K [label="keys/\nprivate.pem\npublic_key.pem", shape=folder, fillcolor="#ffe3b3"];
+ T [label="HTTPS (puerto 8443)\ncertificado autofirmado", style="rounded,filled,dashed", fillcolor="#f5d6d6"];
+ Q [label="Celular\n(escanea QR)", fillcolor="#d4f0d0"];
+ U->F; A->R [label=" HTTP/JSON + JWT"]; A->T [style=dashed, label=" futuro"]; T->R [style=dashed];
+ R->DB; S->K [label=" lee llave privada"]; C->DB [style=dashed];
+ P->Q [label=" QR → /v/{codigo}", style=dotted]; Q->R [label=" GET /v/{codigo}"]; }
