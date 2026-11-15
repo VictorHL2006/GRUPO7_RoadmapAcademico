@@ -1,48 +1,40 @@
-CREATE TABLE IF NOT EXISTS usuarios (
-    id SERIAL PRIMARY KEY,
-    codigo VARCHAR(20) UNIQUE,
-    nombre VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    carrera VARCHAR(100) NOT NULL DEFAULT 'Por definir',
-    password_hash VARCHAR(200),
-    rol VARCHAR(20) NOT NULL DEFAULT 'estudiante' CHECK (rol IN ('estudiante', 'tutor'))
+-- ROADMAP ACADÉMICO · esquema v2
+-- ATENCIÓN: borra y recrea las tablas. Solo para desarrollo con datos ficticios.
+DROP TABLE IF EXISTS roadmaps_emitidos, historial_academico, usuarios CASCADE;
+
+CREATE TABLE usuarios (
+    id                SERIAL PRIMARY KEY,
+    codigo            VARCHAR(20)  UNIQUE NOT NULL,
+    nombres           VARCHAR(100) NOT NULL,
+    correo_hash       CHAR(64)     UNIQUE NOT NULL,   -- HMAC del correo: búsqueda y unicidad
+    correo_cifrado    TEXT         NOT NULL,          -- AES-256-GCM
+    password_hash     TEXT         NOT NULL,          -- scrypt
+    rol               VARCHAR(12)  NOT NULL DEFAULT 'estudiante'
+                      CHECK (rol IN ('estudiante', 'tutor')),
+    intereses_cifrado TEXT,                           -- AES-256-GCM (lista en JSON)
+    creado_en         TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
-ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS codigo VARCHAR(20) UNIQUE;
-ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS password_hash VARCHAR(200);
-ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS rol VARCHAR(20) NOT NULL DEFAULT 'estudiante';
-
-CREATE TABLE IF NOT EXISTS preferencias (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-    area_interes VARCHAR(100) NOT NULL
+CREATE TABLE historial_academico (
+    id           SERIAL PRIMARY KEY,
+    usuario_id   INT         NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    codigo_curso VARCHAR(20) NOT NULL,
+    nota_cifrada TEXT,                                -- AES-256-GCM
+    aprobado     BOOLEAN     NOT NULL,
+    periodo      VARCHAR(10),
+    UNIQUE (usuario_id, codigo_curso)
 );
 
-CREATE TABLE IF NOT EXISTS historial_academico (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-    curso VARCHAR(100) NOT NULL,
-    nota DECIMAL(4,2) NOT NULL CHECK (nota >= 0 AND nota <= 20),
-    periodo VARCHAR(10)
+CREATE TABLE roadmaps_emitidos (
+    id                  SERIAL PRIMARY KEY,
+    codigo_verificacion UUID        UNIQUE NOT NULL,  -- va dentro del QR
+    usuario_id          INT         NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    especialidad        VARCHAR(100),
+    pdf                 BYTEA       NOT NULL,
+    hash_sha256         CHAR(64)    NOT NULL,
+    firma               BYTEA       NOT NULL,         -- RSA-2048, PKCS#1 v1.5, SHA-256
+    emitido_en          TIMESTAMP   NOT NULL DEFAULT NOW()
 );
-ALTER TABLE historial_academico ADD COLUMN IF NOT EXISTS periodo VARCHAR(10);
 
-CREATE TABLE IF NOT EXISTS roadmaps_emitidos (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-    hash_sha256 CHAR(64) NOT NULL,
-    firma BYTEA NOT NULL,
-    archivo_pdf BYTEA,
-    codigo_verificacion UUID,
-    especialidad VARCHAR(100),
-    creditos INTEGER,
-    emitido_en TIMESTAMP NOT NULL DEFAULT NOW()
-);
-ALTER TABLE roadmaps_emitidos ADD COLUMN IF NOT EXISTS archivo_pdf BYTEA;
-ALTER TABLE roadmaps_emitidos ADD COLUMN IF NOT EXISTS codigo_verificacion UUID;
-UPDATE roadmaps_emitidos SET codigo_verificacion=gen_random_uuid()
-    WHERE codigo_verificacion IS NULL;
-ALTER TABLE roadmaps_emitidos ALTER COLUMN codigo_verificacion SET DEFAULT gen_random_uuid();
-ALTER TABLE roadmaps_emitidos ALTER COLUMN codigo_verificacion SET NOT NULL;
-CREATE UNIQUE INDEX IF NOT EXISTS roadmaps_emitidos_codigo_verificacion_uq
-    ON roadmaps_emitidos (codigo_verificacion);
+CREATE INDEX idx_historial_usuario ON historial_academico(usuario_id);
+CREATE INDEX idx_roadmaps_usuario  ON roadmaps_emitidos(usuario_id);

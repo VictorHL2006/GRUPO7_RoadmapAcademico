@@ -1,4 +1,6 @@
+#!/bin/bash
 mkdir -p keys
-echo "Generando certificado TLS autofirmado..."
-openssl req -x509 -new -nodes -key keys/private.pem -sha256 -days 365 -out keys/cert.pem -subj "/C=PE/ST=Arequipa/L=Arequipa/O=Grupo7/CN=roadmapacademico.local"
-echo "Certificado generado exitosamente: keys/cert.pem"
+openssl req -x509 -newkey rsa:2048 -nodes -keyout keys/key.pem \
+  -out keys/cert.pem -days 365 -subj "/CN=localhost"
+chmod 600 keys/key.pem
+echo "Certificado de prueba generado en keys/"
