@@ -1,33 +1,48 @@
-"""Crea usuarios FICTICIOS para probar y hacer capturas (solo desarrollo).
-
-Crea: estudiante E901 (ana@ejemplo.com) con historial e intereses, y tutor T001
-(tutor@ejemplo.com). Contraseña de ambos: Prueba123!   -> NO usar en producción.
-"""
-import json
+"""Carga datos ficticios usando las variables DEMO_* del archivo .env."""
+import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from backend import config, db, servicios  # noqa: E402,F401
-from crypto import cifrado  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-CLAVE = "Prueba123!"
-for datos in (("E901", "Ana Prueba Lopez", "ana@ejemplo.com", "estudiante"),
-              ("T001", "Tutor Prueba", "tutor@ejemplo.com", "tutor")):
-    try:
-        servicios.crear_usuario(datos[0], datos[1], datos[2], CLAVE, datos[3])
-        print("Creado:", datos[0])
-    except ValueError:
-        print("Ya existía:", datos[0])
+from dotenv import load_dotenv
+load_dotenv()
 
-with db.cursor() as cur:
-    cur.execute("SELECT id FROM usuarios WHERE codigo = 'E901'")
-    uid = cur.fetchone()["id"]
-    cur.execute("UPDATE usuarios SET intereses_cifrado = %s WHERE id = %s",
-                (cifrado.cifrar(json.dumps(["redes", "seguridad"]), "usuarios.intereses"), uid))
-    for curso, nota in (("MAT101", 15.0), ("PRG101", 16.0)):
-        cur.execute("""INSERT INTO historial_academico
-                       (usuario_id, codigo_curso, nota_cifrada, aprobado, periodo)
-                       VALUES (%s, %s, %s, TRUE, '2025-I') ON CONFLICT DO NOTHING""",
-                    (uid, curso, cifrado.cifrar(str(nota), "historial.nota")))
-print("Listo. Entrar con ana@ejemplo.com o tutor@ejemplo.com  (clave: Prueba123!)")
+from backend.auth import hash_clave
+from backend.db import get_conn
+
+
+def main():
+    estudiante_clave = os.getenv("DEMO_ESTUDIANTE_PASSWORD")
+    tutor_clave = os.getenv("DEMO_TUTOR_PASSWORD")
+    if not estudiante_clave or not tutor_clave:
+        raise SystemExit("Configura DEMO_ESTUDIANTE_PASSWORD y DEMO_TUTOR_PASSWORD en .env")
+    with get_conn() as cn, cn.cursor() as cur:
+        for codigo, nombre, correo, clave, rol in (
+            ("E901", "Ana Prueba Lopez", "ana@ejemplo.com", estudiante_clave, "estudiante"),
+            ("T901", "Tutor Prueba", "tutor@ejemplo.com", tutor_clave, "tutor"),
+        ):
+            cur.execute(
+                "INSERT INTO usuarios (codigo,nombre,email,carrera,password_hash,rol) "
+                "VALUES (%s,%s,%s,%s,%s,%s) "
+                "ON CONFLICT (codigo) DO UPDATE SET nombre=EXCLUDED.nombre, "
+                "email=EXCLUDED.email, password_hash=EXCLUDED.password_hash, rol=EXCLUDED.rol",
+                (codigo, nombre, correo, "Ingeniería de Sistemas", hash_clave(clave), rol),
+            )
+        cur.execute("SELECT id FROM usuarios WHERE codigo='E901'")
+        usuario_id = cur.fetchone()[0]
+        cur.execute("DELETE FROM preferencias WHERE usuario_id=%s", (usuario_id,))
+        cur.executemany(
+            "INSERT INTO preferencias (usuario_id,area_interes) VALUES (%s,%s)",
+            [(usuario_id, "redes"), (usuario_id, "seguridad")],
+        )
+        cur.execute("DELETE FROM historial_academico WHERE usuario_id=%s", (usuario_id,))
+        cur.executemany(
+            "INSERT INTO historial_academico (usuario_id,curso,nota,periodo) VALUES (%s,%s,%s,%s)",
+            [(usuario_id, "MAT101", 15, "2025-I"), (usuario_id, "PRG101", 16, "2025-I")],
+        )
+    print("Datos ficticios cargados: E901 y T901. Las claves provienen de .env.")
+
+
+if __name__ == "__main__":
+    main()

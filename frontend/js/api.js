@@ -1,4 +1,4 @@
-const API = window.API_URL || 'http://localhost:8000'
+const API = window.API_URL || (location.protocol + '//' + location.hostname + ':8000')
 function token() { return sessionStorage.getItem('token') }
 function mensajeError(data, status) {
   const detail = data && typeof data === 'object' && 'detail' in data ? data.detail : data

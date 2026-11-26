@@ -21,7 +21,7 @@
           <h2 class="h5 mb-1">Estado de la API</h2>
           <p id="estado-api" class="mb-0 text-secondary">Comprobando el backend…</p>
         </div>
-        <a class="btn btn-outline-primary" href="http://localhost:8000/docs" target="_blank" rel="noreferrer">Abrir documentación API</a>
+        <a id="docs-api" class="btn btn-outline-primary" target="_blank" rel="noreferrer">Abrir documentación API</a>
       </div>
     </section>
 
@@ -61,6 +61,7 @@
   </main>
   <script src="js/api.js"></script>
   <script>
+    document.getElementById('docs-api').href = API + '/docs'
     api('/health')
       .then((estado) => {
         document.getElementById('estado-api').textContent = estado.estado === 'ok'

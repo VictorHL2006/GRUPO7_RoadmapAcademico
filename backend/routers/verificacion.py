@@ -15,10 +15,11 @@ from backend.db import get_conn
 router = APIRouter(tags=["verificación"])
 MAX_PDF_BYTES = 20 * 1024 * 1024
 MAX_SIGNATURE_BYTES = 16 * 1024
+RAIZ = Path(__file__).resolve().parents[2]
 
 
 def _verificar(pdf: bytes, firma: bytes) -> bool:
-    public_key = Path(os.getenv("PUBLIC_KEY_PATH", "keys/public_key.pem"))
+    public_key = Path(os.getenv("PUBLIC_KEY_PATH", str(RAIZ / "keys" / "public_key.pem")))
     try:
         key = serialization.load_pem_public_key(public_key.read_bytes())
         key.verify(firma, pdf, padding.PKCS1v15(), hashes.SHA256())

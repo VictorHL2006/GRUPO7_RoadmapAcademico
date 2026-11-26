@@ -5,8 +5,11 @@ import hmac
 import secrets
 
 import jwt
+from dotenv import load_dotenv
 from fastapi import Header, HTTPException
 from jwt import PyJWTError
+
+load_dotenv()
 
 JWT_SECRET = os.getenv("JWT_SECRET", "")
 JWT_ALGORITHM = "HS256"

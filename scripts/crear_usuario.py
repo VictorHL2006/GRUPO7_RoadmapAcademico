@@ -1,28 +1,37 @@
-"""Crea un usuario (por ejemplo un tutor) desde la terminal.
-
-Uso:  python scripts/crear_usuario.py --codigo T001 --nombres "Tutor Prueba" \
-          --correo tutor@ejemplo.com --rol tutor
-La contraseña se pide por teclado (no queda en el historial de la terminal).
-"""
+"""Crea una cuenta de estudiante o tutor solicitando la contraseña en consola."""
 import argparse
 import getpass
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from backend import config, servicios  # noqa: E402,F401
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-p = argparse.ArgumentParser()
-p.add_argument("--codigo", required=True)
-p.add_argument("--nombres", required=True)
-p.add_argument("--correo", required=True)
-p.add_argument("--rol", choices=["estudiante", "tutor"], default="estudiante")
-a = p.parse_args()
-clave = getpass.getpass("Contraseña (mínimo 8 caracteres): ")
-if len(clave) < 8:
-    sys.exit("La contraseña es muy corta.")
-try:
-    servicios.crear_usuario(a.codigo, a.nombres, a.correo, clave, a.rol)
-except ValueError as e:
-    sys.exit(str(e))
-print(f"Usuario {a.codigo} creado con rol {a.rol}.")
+from dotenv import load_dotenv
+load_dotenv()
+
+from backend.auth import hash_clave
+from backend.db import get_conn
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--codigo", required=True)
+    parser.add_argument("--nombres", required=True)
+    parser.add_argument("--correo", required=True)
+    parser.add_argument("--rol", choices=("estudiante", "tutor"), default="estudiante")
+    args = parser.parse_args()
+    clave = getpass.getpass("Contraseña (mínimo 8 caracteres): ")
+    if len(clave) < 8:
+        parser.error("la contraseña debe tener al menos 8 caracteres")
+    with get_conn() as cn, cn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO usuarios (codigo,nombre,email,carrera,password_hash,rol) "
+            "VALUES (%s,%s,%s,%s,%s,%s)",
+            (args.codigo.strip().upper(), args.nombres.strip(), args.correo.strip().lower(),
+             "Por definir", hash_clave(clave), args.rol),
+        )
+    print(f"Usuario {args.codigo.strip().upper()} creado con rol {args.rol}.")
+
+
+if __name__ == "__main__":
+    main()
